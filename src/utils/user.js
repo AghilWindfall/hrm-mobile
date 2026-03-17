@@ -15,11 +15,16 @@ export function hasShiftAssignAccess(user) {
     return false
   }
 
+  const hasFlag = (value) =>
+    value === true || value === 1 || String(value).toLowerCase() === "true"
+
   return (
-    user.HrPolicy === true ||
-    user.HOD === true ||
-    user.Hod === true ||
-    user.IsHOD === true ||
-    user.HodReport === true
+    hasFlag(user.ShiftAssign) ||
+    hasFlag(user.ShiftConfirm) ||
+    hasFlag(user.HrPolicy) ||
+    hasFlag(user.HOD) ||
+    hasFlag(user.Hod) ||
+    hasFlag(user.IsHOD) ||
+    hasFlag(user.HodReport)
   )
 }

@@ -20,7 +20,11 @@ import useShiftDetails, {
   useShiftDepartments,
 } from "../../src/features/shift/hooks/useShiftDetails"
 import { formatToIsoDate, parseDateInput } from "../../src/utils/date"
-import { hasShiftAssignAccess, resolveNumericUserId } from "../../src/utils/user"
+import { exportRowsAsExcel } from "../../src/utils/exportExcel"
+import {
+  hasShiftAssignAccess,
+  resolveNumericUserId,
+} from "../../src/utils/user"
 
 function toDatePayload(date) {
   return {
@@ -245,6 +249,38 @@ export default function ShiftStatusScreen() {
     })
   }, [rows, searchText])
 
+  const exportRows = useMemo(() => {
+    return filteredRows.flatMap((item) => {
+      const shifts = Array.isArray(item?.ShiftAssignedDetail)
+        ? item.ShiftAssignedDetail
+        : []
+
+      if (shifts.length === 0) {
+        return [
+          {
+            "Employee Code": item?.EmployeeCode || "-",
+            "Employee Name": item?.EmployeeName || "Employee",
+            "Shift Code": "-",
+            Description: "No shift assigned",
+            Status: "-",
+            "From Date": "-",
+            "To Date": "-",
+          },
+        ]
+      }
+
+      return shifts.map((shift) => ({
+        "Employee Code": item?.EmployeeCode || "-",
+        "Employee Name": item?.EmployeeName || "Employee",
+        "Shift Code": shift?.ShiftCode || "-",
+        Description: shift?.ShiftDescription || "-",
+        Status: shift?.Confirmed ? "Confirmed" : "Pending",
+        "From Date": formatShiftDate(shift?.FromDate),
+        "To Date": formatShiftDate(shift?.ToDate),
+      }))
+    })
+  }, [filteredRows])
+
   const pickerValue = useMemo(() => {
     if (pickerField === "from") {
       return parseDateInput(fromDate) || new Date()
@@ -353,6 +389,15 @@ export default function ShiftStatusScreen() {
       setExpandedEmployeeIds({})
       setHasSearched(true)
     }
+  }
+
+  const handleExport = async () => {
+    await exportRowsAsExcel({
+      rows: exportRows,
+      sheetName: "Shift Status",
+      filePrefix: "shift-status",
+      emptyMessage: "No shift data available to export.",
+    })
   }
 
   useEffect(() => {
@@ -466,10 +511,17 @@ export default function ShiftStatusScreen() {
           />
         </View>
 
-        <Pressable style={styles.showButton} onPress={handleSearch}>
-          <Ionicons name="search" size={15} color="#FFFFFF" />
-          <Text style={styles.showButtonText}>Show Shifts</Text>
-        </Pressable>
+        <View style={styles.actionRow}>
+          <Pressable style={styles.showButton} onPress={handleSearch}>
+            <Ionicons name="search" size={15} color="#FFFFFF" />
+            <Text style={styles.showButtonText}>Show Shifts</Text>
+          </Pressable>
+
+          <Pressable style={styles.exportButton} onPress={handleExport}>
+            <Ionicons name="download-outline" size={15} color="#145533" />
+            <Text style={styles.exportButtonText}>Export</Text>
+          </Pressable>
+        </View>
 
         <View style={styles.searchWrap}>
           <Ionicons name="search-outline" size={16} color="#6D8090" />
@@ -682,6 +734,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   showButton: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -694,6 +747,28 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 14,
     fontWeight: "700",
+  },
+  actionRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  exportButton: {
+    minWidth: 104,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#B8D9C5",
+    backgroundColor: "#EAF8EE",
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+  },
+  exportButtonText: {
+    color: "#145533",
+    fontSize: 13,
+    fontWeight: "800",
   },
   searchWrap: {
     flexDirection: "row",

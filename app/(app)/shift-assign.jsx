@@ -24,7 +24,10 @@ import useShiftDetails, {
   useUpdateShiftAllocation,
 } from "../../src/features/shift/hooks/useShiftDetails"
 import { formatToIsoDate, parseDateInput } from "../../src/utils/date"
-import { hasShiftAssignAccess, resolveNumericUserId } from "../../src/utils/user"
+import {
+  hasShiftAssignAccess,
+  resolveNumericUserId,
+} from "../../src/utils/user"
 
 function toDatePayload(date) {
   return {

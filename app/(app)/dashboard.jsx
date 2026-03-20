@@ -58,12 +58,6 @@ export default function DashboardScreen() {
   const conditionalModules = useMemo(
     () => [
       {
-        key: "user-roles",
-        label: "User Roles",
-        icon: "shield-checkmark",
-        permission: "UserRoleAssign",
-      },
-      {
         key: "live-punch-request",
         label: "Live Punch Request",
         icon: "log-in",
@@ -74,12 +68,6 @@ export default function DashboardScreen() {
         label: "Leave Approval",
         icon: "checkmark-done-circle",
         permission: "LeaveApproval",
-      },
-      {
-        key: "alerts",
-        label: "Alerts",
-        icon: "notifications",
-        permission: "HrPolicy",
       },
       {
         key: "attendance-report",
@@ -133,10 +121,8 @@ export default function DashboardScreen() {
     }
 
     const hrOverrideKeys = new Set([
-      "user-roles",
       "live-punch-request",
       "leave-approval",
-      "alerts",
       "attendance-report",
       "company-overview",
       "employee-database",
@@ -148,7 +134,6 @@ export default function DashboardScreen() {
 
     const leaveApprovalGroupKeys = new Set([
       "leave-approval",
-      "alerts",
       "attendance-report",
     ])
 
@@ -180,16 +165,6 @@ export default function DashboardScreen() {
 
       if (livePunchModule) {
         moduleMap.set(livePunchModule.key, livePunchModule)
-      }
-    }
-
-    if (user.UserRoleAssign === true) {
-      const userRolesModule = conditionalModules.find(
-        (module) => module.key === "user-roles",
-      )
-
-      if (userRolesModule) {
-        moduleMap.set(userRolesModule.key, userRolesModule)
       }
     }
 
@@ -229,6 +204,11 @@ export default function DashboardScreen() {
     const routeMap = {
       attendance: "/self-attendance",
       "attendance-report": "/attendance-report",
+      "company-overview": "/company-overview",
+      "hod-report": "/hod-report",
+      "muster-roll": "/muster-roll",
+      "employee-database": "/employee-database",
+      "time-office-report": "/time-office-report",
       team: "/our-team",
       leave: "/leave-request",
       "leave-approval": "/leave-approval",
@@ -239,6 +219,7 @@ export default function DashboardScreen() {
       calendar: "/calendar",
       shift: "/shift-status",
       password: "/change-password",
+      "quick-search": "/quick-search",
     }
 
     if (routeMap[moduleKey]) {

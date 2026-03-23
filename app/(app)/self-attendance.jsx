@@ -20,7 +20,7 @@ import { exportRowsAsExcel } from "../../src/utils/exportExcel"
 import { resolveNumericUserId } from "../../src/utils/user"
 
 const REQUIRED_ACTUAL_MINUTES = 8 * 60
-const HIGH_BREAK_LIMIT_MINUTES = 90
+const HIGH_BREAK_LIMIT_MINUTES = 75
 
 function parseDurationToMinutes(value) {
   if (!value || typeof value !== "string") {
@@ -106,6 +106,7 @@ function getBreakCategory(minutes) {
 export default function SelfAttendanceScreen() {
   const user = useAuthStore((state) => state.user)
   const userId = resolveNumericUserId(user)
+  const isHrPolicy = Boolean(user?.HrPolicy)
   const attendanceMutation = useSelfAttendance()
 
   const [fromDate, setFromDate] = useState(() => formatToIsoDate(new Date()))
@@ -471,17 +472,21 @@ export default function SelfAttendanceScreen() {
             </View>
 
             <View style={styles.insightGrid}>
-              <View style={[styles.insightCard, styles.insightGreen]}>
-                <Text style={styles.insightLabel}>Extra In Office</Text>
-                <Text style={styles.insightValue}>
-                  {formatMinutesToDuration(insights.extraMinutes)}
-                </Text>
-              </View>
+              {isHrPolicy ? (
+                <View style={[styles.insightCard, styles.insightGreen]}>
+                  <Text style={styles.insightLabel}>Extra In Office</Text>
+                  <Text style={styles.insightValue}>
+                    {formatMinutesToDuration(insights.extraMinutes)}
+                  </Text>
+                </View>
+              ) : null}
 
-              <View style={[styles.insightCard, styles.insightBlue]}>
-                <Text style={styles.insightLabel}>Overtime Days</Text>
-                <Text style={styles.insightValue}>{insights.overtimeDays}</Text>
-              </View>
+              {isHrPolicy ? (
+                <View style={[styles.insightCard, styles.insightBlue]}>
+                  <Text style={styles.insightLabel}>Overtime Days</Text>
+                  <Text style={styles.insightValue}>{insights.overtimeDays}</Text>
+                </View>
+              ) : null}
 
               <View style={[styles.insightCard, styles.insightRed]}>
                 <Text style={styles.insightLabel}>High Break Alerts</Text>
@@ -493,7 +498,7 @@ export default function SelfAttendanceScreen() {
 
             <View style={styles.metaStrip}>
               <Text style={styles.metaStripText}>
-                Required Actual: 08:00 | Break Policy: above 01:30 is marked as
+                Required Actual: 08:00 | Break Policy: above 01:15 is marked as
                 high.
               </Text>
             </View>
@@ -526,7 +531,7 @@ export default function SelfAttendanceScreen() {
                       </Text>
                     </View>
                     <View style={styles.badgeStack}>
-                      {extraMinutes > 0 ? (
+                      {isHrPolicy && extraMinutes > 0 ? (
                         <View style={styles.extraTag}>
                           <Ionicons
                             name="trending-up"
@@ -593,12 +598,14 @@ export default function SelfAttendanceScreen() {
                   </View>
 
                   <View style={styles.metricsRow}>
-                    <Text style={styles.metricStrong}>
-                      Overtime:{" "}
-                      {extraMinutes > 0
-                        ? formatMinutesToDuration(extraMinutes)
-                        : "00:00"}
-                    </Text>
+                    {isHrPolicy ? (
+                      <Text style={styles.metricStrong}>
+                        Overtime:{" "}
+                        {extraMinutes > 0
+                          ? formatMinutesToDuration(extraMinutes)
+                          : "00:00"}
+                      </Text>
+                    ) : null}
                     <Text style={styles.metricText}>
                       Late: {item?.LateTime || "00:00"}
                     </Text>
@@ -611,7 +618,7 @@ export default function SelfAttendanceScreen() {
                     <View style={styles.alertRow}>
                       <Ionicons name="warning" size={14} color="#B42318" />
                       <Text style={styles.alertText}>
-                        Break exceeded 01:30. This is marked as high.
+                        Break exceeded 01:15. This is marked as high.
                       </Text>
                     </View>
                   ) : null}

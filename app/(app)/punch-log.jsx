@@ -8,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native"
 
@@ -226,8 +227,12 @@ export default function PunchLogScreen() {
   const userId = resolveNumericUserId(user)
   const punchLogMutation = usePunchLog()
 
+  const canSearch = Boolean(user?.ShiftAssign || user?.ShiftConfirm || user?.HrPolicy)
+
   const [fromDate, setFromDate] = useState(() => formatToIsoDate(new Date()))
   const [toDate, setToDate] = useState(() => formatToIsoDate(new Date()))
+  const [searchCode, setSearchCode] = useState("")
+  const [searchName, setSearchName] = useState("")
   const [pickerField, setPickerField] = useState(null)
   const [formErrors, setFormErrors] = useState({})
   const [rows, setRows] = useState([])
@@ -373,6 +378,8 @@ export default function PunchLogScreen() {
       PageRowCount: 50,
       FromDate: buildDatePayload(from),
       ToDate: buildDatePayload(to),
+      SearchCode: canSearch ? searchCode.trim() : "",
+      SearchName: canSearch ? searchName.trim() : "",
     }
 
     try {
@@ -475,6 +482,35 @@ export default function PunchLogScreen() {
             ) : null}
           </View>
         </View>
+
+        {canSearch ? (
+          <View style={styles.twoColRow}>
+            <View style={[styles.fieldBlock, styles.col]}>
+              <Text style={styles.fieldLabel}>Search by Code</Text>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Employee code"
+                placeholderTextColor="#8090A2"
+                value={searchCode}
+                onChangeText={setSearchCode}
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+            <View style={[styles.fieldBlock, styles.col]}>
+              <Text style={styles.fieldLabel}>Search by Name</Text>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Employee name"
+                placeholderTextColor="#8090A2"
+                value={searchName}
+                onChangeText={setSearchName}
+                autoCapitalize="words"
+                autoCorrect={false}
+              />
+            </View>
+          </View>
+        ) : null}
 
         <Button
           label="Show"
@@ -805,6 +841,16 @@ const styles = StyleSheet.create({
     color: "#244461",
     fontSize: 12,
     fontWeight: "800",
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: "#CFD7E2",
+    borderRadius: 10,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 10,
+    height: 40,
+    color: "#22354A",
+    fontSize: 13,
   },
   exportButton: {
     flexDirection: "row",

@@ -88,7 +88,7 @@ function safeDateFromValue(value) {
 export default function LeaveApprovalScreen() {
   const user = useAuthStore((state) => state.user)
   const approverUserId = Number(user?.UserId || user?.User_Id || user?.id || 0)
-  const todayIso = useMemo(() => formatToIsoDate(new Date()), [])
+  // const todayIso = useMemo(() => formatToIsoDate(new Date()), [])
 
   const [statusFilter, setStatusFilter] = useState("P")
   const leaveTypesQuery = useApprovalLeaveTypes()
@@ -100,8 +100,8 @@ export default function LeaveApprovalScreen() {
   const leaveSanctionMutation = useLeaveSanctionAction()
 
   const [filters, setFilters] = useState({
-    fromDate: todayIso,
-    toDate: todayIso,
+    fromDate: "",
+    toDate: "",
     leaveTypeId: ALL_LEAVE_TYPES,
     employeeQuery: "",
   })
@@ -109,8 +109,8 @@ export default function LeaveApprovalScreen() {
 
   const clearFilters = () => {
     setFilters({
-      fromDate: todayIso,
-      toDate: todayIso,
+      fromDate: "",
+      toDate: "",
       leaveTypeId: ALL_LEAVE_TYPES,
       employeeQuery: "",
     })
